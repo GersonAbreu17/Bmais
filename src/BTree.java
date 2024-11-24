@@ -62,7 +62,7 @@ public class BTree
             folha.setvLig(0, cx1);
             folha.setvLig(1, cx2);
         }
-        else
+        else    
         {
             int pos = pai.procurarPosicao(folha.getvInfo(No.m));
             pai.remanejar(pos);
@@ -117,135 +117,6 @@ public class BTree
                 System.out.println(raiz.getvInfo(i));
             }
             in_ordem(raiz.getvLig(raiz.getTl()));
-        }
-    }
-
-    //--- Exclusao ---
-    private No buscaNo(int info)
-    {
-        No aux = raiz;
-        boolean flag=false;
-        int pos;
-        while(aux!=null && !flag)
-        {
-            pos = aux.procurarPosicao(info);
-            if (pos<aux.getTl() && info == aux.getvInfo(pos))
-                flag = true;
-            else
-                aux = aux.getvLig(pos);
-        }
-        return aux;
-    }
-
-    private No localizarSubE(No no, int pos)
-    {
-        no = no.getvLig(pos);
-        while (no.getvLig(0)!=null)
-            no = no.getvLig(no.getTl());
-        return no;
-    }
-
-    private No localizarSubD(No no, int pos)
-    {
-        no = no.getvLig(pos);
-        while (no.getvLig(0)!=null)
-            no = no.getvLig(0);
-        return no;
-    }
-
-    public void excluir(int info)
-    {
-        No no, subE, subD, folha;
-        no = buscaNo(info);
-        int pos;
-        if(no!=null)
-        {
-            pos = no.procurarPosicao(info);
-            if(no.getvLig(0)!=null) //nao folha
-            {
-                subE = localizarSubE(no, pos);
-                subD = localizarSubD(no, pos+1);
-                if(subE.getTl() > No.m || subD.getTl() == No.m)
-                {
-                    no.setvInfo(pos, subE.getvInfo(subE.getTl()-1));
-                    no.setvPos(pos, subE.getvPos(subE.getTl()-1));
-                    folha = subE;
-                    pos = subE.getTl()-1;
-                }
-                else {
-                    no.setvInfo(pos, subD.getvInfo(0));
-                    no.setvPos(pos, subD.getvPos(0));
-                    folha = subD;
-                    pos = 0;
-                }
-            }
-            else
-                folha = no;
-
-            //excluir da folha
-            folha.remanejarExclusao(pos);
-            folha.setTl(folha.getTl()-1);
-
-            if (folha ==raiz && folha.getTl()==0)
-                raiz = null;
-            else
-                if(folha!=raiz && folha.getTl()<No.m)
-                    redistribuirConcatenar(folha);
-        }
-    }
-
-    public void redistribuirConcatenar(No folha)
-    {
-        No irmaE = null, irmaD = null;
-        No pai = localizarPai(folha, folha.getvInfo(0));
-        int posPai = pai.procurarPosicao(folha.getvInfo(0));
-        if (posPai>0)
-            irmaE = pai.getvLig(posPai-1);
-        if (posPai<pai.getTl())
-            irmaD = pai.getvLig(posPai+1);
-
-        if(irmaE!=null && irmaE.getTl()>No.m)
-        {
-            folha.remanejar(0);
-            folha.setvInfo(0, pai.getvInfo(posPai-1));
-            folha.setvPos(0, pai.getvPos(posPai-1));
-            folha.setTl(folha.getTl()+1);
-            pai.setvInfo(posPai-1, irmaE.getvInfo(irmaE.getTl()-1));
-            pai.setvPos(posPai-1, irmaE.getvPos(irmaE.getTl()-1));
-            folha.setvLig(0, irmaE.getvLig(irmaE.getTl()));
-            irmaE.setTl(irmaE.getTl()-1);
-        }
-        else
-        if(irmaD!=null && irmaD.getTl()>No.m)
-        {
-        }
-        else //concatenacao
-        {
-            if(irmaE!=null)
-            {
-                irmaE.setvInfo(irmaE.getTl(), pai.getvInfo(posPai-1));
-                irmaE.setvPos(irmaE.getTl(), pai.getvPos(posPai-1));
-                irmaE.setTl(irmaE.getTl()+1);
-                pai.remanejarExclusao(posPai-1);
-                pai.setTl(pai.getTl()-1);
-                pai.setvLig(posPai-1, irmaE);
-                for(int i=0; i<folha.getTl(); i++)
-                {
-                    irmaE.setvInfo(irmaE.getTl(), folha.getvInfo(i));
-                    irmaE.setvPos(irmaE.getTl(), folha.getvPos(i));
-                    irmaE.setvLig(irmaE.getTl(), folha.getvLig(i));
-                    irmaE.setTl(irmaE.getTl()+1);
-                }
-                irmaE.setvLig(irmaE.getTl(), folha.getvLig(folha.getTl()));
-            }
-            else //irmaD!=null
-            {
-
-            }
-
-
-
-
         }
     }
 }

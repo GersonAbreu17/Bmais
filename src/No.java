@@ -1,21 +1,20 @@
 public class No
 {
-    public static final int M = 3;
     private int vInfo[];
     private No vLig[];
     private int tl;
     private No prox;
     private No ant;
 
-    public No()
+    public No(int n)
     {
-        vInfo = new int[M+1];
-        vLig = new No[M+2];
+        vInfo = new int[n];
+        vLig = new No[n+1];
     }
 
-    public No(int info)
+    public No(int info, int n)
     {
-        this();
+        this(n);
         vInfo[0] = info;
         tl = 1;
     }

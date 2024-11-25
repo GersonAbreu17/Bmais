@@ -1,10 +1,12 @@
 public class BTree
 {
     private No raiz;
+    private int n;
 
-    public BTree()
+    public BTree(int n)
     {
         raiz = null;
+        this.n = n;
     }
 
     private No navegarAteFolha(int info)
@@ -34,115 +36,80 @@ public class BTree
 
     private void split(No folha, No pai)
     {
-        No cx1 = new No();
-        No cx2 = new No();
-        int qtd;
-        if(folha.getvLig(0) == null) {
-            qtd = (int) Math.ceil((No.M - 1) / 2);
+        No cx1 = new No(n);
+        No cx2 = new No(n);
 
-            for (int i = 0; i < qtd; i++) {
+        int qtd;
+
+        if(folha.getvLig(0) == null)
+        {
+            qtd = (int) Math.ceil((double)(n-1)/2);
+            for(int i=0;i<qtd;i++)
+            {
                 cx1.setvInfo(i, folha.getvInfo(i));
-                cx1.setvLig(i, folha.getvLig(i));
             }
             cx1.setTl(qtd);
-
-            for (int i = qtd; i < No.M; i++) {
-                cx2.setvInfo(i - (qtd), folha.getvInfo(i));
-                cx2.setvLig(i - (qtd), folha.getvLig(i));
+            for(int i=qtd; i < folha.getTl(); i++)
+            {
+                cx2.setvInfo(i-qtd, folha.getvInfo(i));
             }
-            cx2.setTl(No.M - qtd);
+            cx2.setTl(folha.getTl() - qtd);
 
+            if(folha.getAnt() != null)
+                folha.getAnt().setProx(cx1);
+            cx1.setProx(cx2);
+            cx2.setProx(folha.getProx());
+            if(folha.getProx() != null)
+                folha.getProx().setAnt(cx2);
+            cx2.setAnt(cx1);
+            cx1.setAnt(folha.getAnt());
+            folha.setAnt(null);
+            folha.setProx(null);
         }
         else
         {
-            qtd = (int) Math.ceil(No.M/2)-1;
-
-            for(int i=0; i<qtd; i++)
+            qtd = (int) Math.ceil((double)n/2) - 1;
+            for(int i=0;i<qtd;i++)
             {
                 cx1.setvInfo(i, folha.getvInfo(i));
                 cx1.setvLig(i, folha.getvLig(i));
             }
             cx1.setvLig(qtd, folha.getvLig(qtd));
             cx1.setTl(qtd);
-
-            for(int i=qtd+1; i<No.M; i++)
+            int j = 0;
+            for(int i=qtd+1;i<folha.getTl();i++)
             {
-                cx2.setvInfo(i-(qtd+1), folha.getvInfo(i));
-                cx2.setvLig(i-(qtd+1), folha.getvLig(i));
+                cx2.setvInfo(j, folha.getvInfo(i));
+                cx2.setvLig(j++, folha.getvLig(i));
             }
-            cx2.setvLig(No.M - (qtd + 1), folha.getvLig(No.M));
-            cx2.setTl(No.M - (qtd + 1));
+            cx2.setvLig(j, folha.getvLig(folha.getTl()));
+            cx2.setTl(j);
         }
-        if(folha==pai) {
-
+        if(folha == pai)
+        {
             folha.setvInfo(0, folha.getvInfo(qtd));
             folha.setTl(1);
             folha.setvLig(0, cx1);
             folha.setvLig(1, cx2);
-
-            int pos = pai.procurarPosicao(folha.getvInfo(qtd));
-
-            No irmaE = null, irmaD = null;
-
-            if (pos > 0) {
-                irmaE = pai.getvLig(pos - 1);
-                irmaE.setProx(cx1);
-            }
-            if (pos + 1 < pai.getTl()) {
-                irmaD = pai.getvLig(pos + 2);
-                irmaD.setAnt(cx2);
-            }
-
-            cx1.setAnt(irmaE);
-            cx2.setProx(irmaD);
-
-            cx1.setProx(cx2);
-            cx2.setAnt(cx1);
         }
         else
         {
-            // Inserindo o indice no pai
             int pos = pai.procurarPosicao(folha.getvInfo(qtd));
             pai.remanejar(pos);
             pai.setvInfo(pos, folha.getvInfo(qtd));
-            pai.setTl(pai.getTl()+1);
-
-            // Ligando as caixas
+            pai.setTl(pai.getTl() + 1);
             pai.setvLig(pos, cx1);
             pai.setvLig(pos+1, cx2);
-
-            cx1.setAnt(pai.getAnt());
-
-
-            // Ligando a folha nos irmaos
-            cx1.setProx(cx2);
-            cx2.setAnt(cx1);
-
-            No irmaD = null;
-            No irmaE = null;
-
-            if(pos > 0){
-                irmaE = pai.getvLig(pos-1);
-                irmaE.setProx(cx1);
-            }
-            if(pos + 1 < pai.getTl()){
-                irmaD = pai.getvLig(pos+2);
-                irmaD.setAnt(cx2);
-            }
-
-            cx1.setAnt(irmaE);
-            cx2.setProx(irmaD);
-
-            if(pai.getTl() > No.M-1)
+            if(pai.getTl() >= n)
             {
                 folha = pai;
-                pai = localizarPai(folha, folha.getvInfo(qtd));
+                pai = localizarPai(pai, pai.getvInfo(0));
                 split(folha, pai);
             }
         }
     }
 
-    public void inserir(int info, int posArq)
+    public void inserir(int info)
     {
         No folha,pai;
         int pos;
@@ -155,7 +122,7 @@ public class BTree
             folha.remanejar(pos);
             folha.setvInfo(pos, info);
             folha.setTl(folha.getTl()+1);
-            if(folha.getTl() == No.M)
+            if(folha.getTl() == n)
             {
                 pai = localizarPai(folha, info);
                 split(folha, pai);

@@ -1,23 +1,22 @@
 public class No
 {
-    public static final int m = 2;
+    public static final int M = 3;
     private int vInfo[];
-    private int vPos[];
     private No vLig[];
     private int tl;
+    private No prox;
+    private No ant;
 
     public No()
     {
-        vInfo = new int[m*2+1];
-        vPos = new int[m*2+1];
-        vLig = new No[m*2+2];
+        vInfo = new int[M+1];
+        vLig = new No[M+2];
     }
 
-    public No(int info, int posArq)
+    public No(int info)
     {
         this();
         vInfo[0] = info;
-        vPos[0] = posArq;
         tl = 1;
     }
 
@@ -35,7 +34,6 @@ public class No
         for(int i=tl; i>pos; i--)
         {
             vInfo[i] = vInfo[i-1];
-            vPos[i] = vPos[i-1];
             vLig[i] = vLig[i-1];
         }
     }
@@ -46,14 +44,6 @@ public class No
 
     public void setvInfo(int p, int info) {
         vInfo[p] = info;
-    }
-
-    public int getvPos(int p) {
-        return vPos[p];
-    }
-
-    public void setvPos(int p, int pos) {
-        vPos[p] = pos;
     }
 
     public No getvLig(int p) {
@@ -77,8 +67,23 @@ public class No
         for(int i=pos;i<tl-1;i++)
         {
             vInfo[i] = vInfo[i+1];
-            vPos[i] = vPos[i+1];
             vLig[i+1] = vLig[i+2];
         }
+    }
+
+    public No getProx() {
+        return prox;
+    }
+
+    public void setProx(No prox) {
+        this.prox = prox;
+    }
+
+    public No getAnt() {
+        return ant;
+    }
+
+    public void setAnt(No ant) {
+        this.ant = ant;
     }
 }

@@ -3,7 +3,7 @@ public class Aplicacao {
     public static void main(String[] args) {
         BTree b = new BTree();
 
-        for(int i=1; i<=30000; i++)
+        for(int i=9; i>0; i--)
             b.inserir(i, 0);
 
         System.out.println("Terminou a insercao");
